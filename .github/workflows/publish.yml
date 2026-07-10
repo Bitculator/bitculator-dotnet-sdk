@@ -1,0 +1,44 @@
+# NuGet Trusted Publishing — publishes Bitculator to nuget.org when a release
+# tag lands on this mirror (pushed by the monorepo's sdks/release.sh).
+#
+# Pairs with the nuget.org Trusted Publishing policy:
+#   Package Owner: Bitculator · Repository Owner: Bitculator
+#   Repository: bitculator-dotnet-sdk · Workflow File: publish.yml · Environment: (blank)
+#
+# No API keys are stored anywhere — NuGet/login exchanges a GitHub OIDC token
+# for a short-lived key at run time.
+name: Publish to NuGet
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for NuGet trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Pack
+        run: dotnet pack Bitculator.csproj -c Release
+
+      - name: NuGet login (trusted publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: Bitculator
+
+      - name: Push
+        run: >
+          dotnet nuget push bin/Release/Bitculator.*.nupkg
+          -s https://api.nuget.org/v3/index.json
+          -k ${{ steps.login.outputs.NUGET_API_KEY }}
+          --skip-duplicate
