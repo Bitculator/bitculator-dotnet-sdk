@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>Bitculator</RootNamespace>
+    <AssemblyName>Bitculator</AssemblyName>
+    <PackageId>Bitculator</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Official .NET SDK for the Bitculator Data API</Description>
+    <Authors>Bitculator</Authors>
+    <PackageProjectUrl>https://bitculator.com/en/documentation/api/v1</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bitculator/bitculator-dotnet-sdk</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="examples/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
