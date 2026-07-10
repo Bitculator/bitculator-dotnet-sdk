@@ -28,7 +28,7 @@ public sealed class Page
         _path = path;
         _params = p;
 
-        var rows = new List<JsonNode?>();
+        List<JsonNode?> rows = [];
         if (envelope is JsonObject obj && obj["data"] is JsonArray array)
         {
             foreach (var item in array)
@@ -54,7 +54,7 @@ public sealed class Page
             return null;
         }
         var next = (_params ?? new Params()).Copy().Set("page", Meta.CurrentPage + 1);
-        return await _http.PageAsync(_path, next, ct);
+        return await _http.PageAsync(_path, next, ct).ConfigureAwait(false);
     }
 
     /// <summary>Enumerate every row across this and all following pages, fetching lazily.</summary>
@@ -67,7 +67,7 @@ public sealed class Page
             {
                 yield return row;
             }
-            page = await page.NextPageAsync(ct);
+            page = await page.NextPageAsync(ct).ConfigureAwait(false);
         }
     }
 }

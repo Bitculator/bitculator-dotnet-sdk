@@ -12,7 +12,7 @@ namespace Bitculator;
 /// </summary>
 public sealed class Params
 {
-    private readonly List<KeyValuePair<string, string>> _values = new();
+    private readonly List<KeyValuePair<string, string>> _values = [];
 
     public Params() { }
 
@@ -52,7 +52,7 @@ public sealed class Params
         }
         else if (value is IEnumerable enumerable)
         {
-            var parts = new List<string>();
+            List<string> parts = [];
             foreach (var item in enumerable)
             {
                 if (item != null)

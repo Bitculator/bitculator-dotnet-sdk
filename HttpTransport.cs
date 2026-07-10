@@ -45,16 +45,16 @@ internal sealed class HttpTransport : IDisposable
     public void Dispose() => _http.Dispose();
 
     public async Task<JsonNode?> GetAsync(string path, Params? p, CancellationToken ct) =>
-        Unwrap(await SendAsync(HttpMethod.Get, path, p, null, ct));
+        Unwrap(await SendAsync(HttpMethod.Get, path, p, null, ct).ConfigureAwait(false));
 
     public async Task<JsonNode?> PostAsync(string path, object? body, CancellationToken ct) =>
-        Unwrap(await SendAsync(HttpMethod.Post, path, null, body, ct));
+        Unwrap(await SendAsync(HttpMethod.Post, path, null, body, ct).ConfigureAwait(false));
 
     public async Task<JsonNode?> DeleteAsync(string path, CancellationToken ct) =>
-        Unwrap(await SendAsync(HttpMethod.Delete, path, null, null, ct));
+        Unwrap(await SendAsync(HttpMethod.Delete, path, null, null, ct).ConfigureAwait(false));
 
     public async Task<Page> PageAsync(string path, Params? p, CancellationToken ct) =>
-        new Page(this, path, p, await SendAsync(HttpMethod.Get, path, p, null, ct));
+        new Page(this, path, p, await SendAsync(HttpMethod.Get, path, p, null, ct).ConfigureAwait(false));
 
     private async Task<JsonNode?> SendAsync(HttpMethod method, string path, Params? p, object? body, CancellationToken ct)
     {
@@ -88,13 +88,13 @@ internal sealed class HttpTransport : IDisposable
             HttpResponseMessage response;
             try
             {
-                response = await _http.SendAsync(request, ct);
+                response = await _http.SendAsync(request, ct).ConfigureAwait(false);
             }
             catch (TaskCanceledException) when (!ct.IsCancellationRequested)
             {
                 if (isIdempotent && attempt < _maxRetries)
                 {
-                    await Task.Delay(Backoff(attempt++), ct);
+                    await Task.Delay(Backoff(attempt++), ct).ConfigureAwait(false);
                     continue;
                 }
                 throw new BitculatorTimeoutException($"Request to {path} timed out");
@@ -103,7 +103,7 @@ internal sealed class HttpTransport : IDisposable
             {
                 if (isIdempotent && attempt < _maxRetries)
                 {
-                    await Task.Delay(Backoff(attempt++), ct);
+                    await Task.Delay(Backoff(attempt++), ct).ConfigureAwait(false);
                     continue;
                 }
                 throw new BitculatorConnectionException($"Network error requesting {path}: {e.Message}");
@@ -113,7 +113,7 @@ internal sealed class HttpTransport : IDisposable
             {
                 _quota = ParseQuota(response);
                 int status = (int)response.StatusCode;
-                var text = await response.Content.ReadAsStringAsync(ct);
+                var text = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
                 if (status is >= 200 and < 300)
                 {
@@ -123,7 +123,7 @@ internal sealed class HttpTransport : IDisposable
                 var node = Parse(text);
                 if ((status == 429 || (status >= 500 && isIdempotent)) && attempt < _maxRetries)
                 {
-                    await Task.Delay(RetryDelay(response, attempt++), ct);
+                    await Task.Delay(RetryDelay(response, attempt++), ct).ConfigureAwait(false);
                     continue;
                 }
                 throw ApiException.From(status, node, response);
@@ -178,7 +178,7 @@ internal sealed class HttpTransport : IDisposable
         foreach (var header in resp.Headers)
         {
             var key = header.Key.ToLowerInvariant();
-            if (key.StartsWith("x-quota-"))
+            if (key.StartsWith("x-quota-", StringComparison.Ordinal))
             {
                 var value = header.Value.FirstOrDefault();
                 if (value != null)

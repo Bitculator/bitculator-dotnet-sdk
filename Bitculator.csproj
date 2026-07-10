@@ -8,7 +8,7 @@
     <RootNamespace>Bitculator</RootNamespace>
     <AssemblyName>Bitculator</AssemblyName>
     <PackageId>Bitculator</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Description>Official .NET SDK for the Bitculator Data API</Description>
     <Authors>Bitculator</Authors>
     <PackageProjectUrl>https://bitculator.com/en/documentation/api/v1</PackageProjectUrl>
@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Compile Remove="examples/**/*.cs" />
+    <Compile Remove="tests/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
