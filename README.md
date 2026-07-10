@@ -1,5 +1,8 @@
 # Bitculator Data API — .NET SDK
 
+[bitculator.com](https://bitculator.com) · [API documentation](https://bitculator.com/en/documentation/api/v1) · [Get an API key](https://bitculator.com/user/developer/api)
+[NuGet — `Bitculator`](https://www.nuget.org/packages/Bitculator) · [GitHub](https://github.com/Bitculator/bitculator-dotnet-sdk)
+
 The official .NET SDK for the [Bitculator Data API](https://bitculator.com).
 Async, `HttpClient` + in-box `System.Text.Json` (zero NuGet dependencies), .NET 8+.
 
