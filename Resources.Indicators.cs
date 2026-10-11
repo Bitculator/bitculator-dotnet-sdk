@@ -49,7 +49,8 @@ public sealed class Calculators : ResourceBase
         Http.GetAsync("/api/v1/calculators/profit-loss", p, ct);
 
     /// <summary>Compound interest calculator. Params: principal, rate, duration, duration_unit,
-    /// compound_frequency, contribution, contribution_frequency.</summary>
+    /// compound_frequency, contribution, contribution_frequency. <c>rate</c> is the annual nominal
+    /// rate in %; each compounding period earns <c>rate</c> divided by the periods per year.</summary>
     public Task<JsonNode?> CompoundInterestAsync(Params? p = null, CancellationToken ct = default) =>
         Http.GetAsync("/api/v1/calculators/compound-interest", p, ct);
 

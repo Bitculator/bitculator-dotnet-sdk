@@ -35,7 +35,7 @@ public sealed class Sentiment : ResourceBase
     public Task<JsonNode?> VoteAsync(string slug, string vote, CancellationToken ct = default) =>
         Http.PostAsync($"/api/v1/coins/{Enc(slug)}/votes", new { vote }, ct);
 
-    /// <summary>Fear &amp; Greed index. Params: coin.</summary>
+    /// <summary>Fear &amp; Greed index. Params: coin. Each reading carries <c>index</c> (0-100, as shown on Bitculator; use it for display) and the raw <c>score</c> (-100..+100).</summary>
     public Task<JsonNode?> FearGreedAsync(Params? p = null, CancellationToken ct = default) =>
         Http.GetAsync("/api/v1/sentiment/fear-greed", p, ct);
 

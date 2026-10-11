@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -33,11 +35,26 @@ internal sealed class HttpTransport : IDisposable
         _userAgent = userAgent;
         _maxRetries = maxRetries;
         // A caller-supplied handler (proxy/testing/tracing) is owned by the caller,
-        // so the HttpClient wrapper never disposes it; Dispose() below still
-        // disposes the HttpClient itself either way.
+        // so the HttpClient wrapper never disposes it or changes its decompression
+        // settings; Dispose() below still disposes the HttpClient itself either way.
         _http = handler != null
             ? new HttpClient(handler, disposeHandler: false) { Timeout = timeout }
-            : new HttpClient { Timeout = timeout };
+            : new HttpClient(GzipHandler()) { Timeout = timeout };
+    }
+
+    // The SDK's own handler asks for gzip and decompresses transparently. Gzip only:
+    // a corrupt Brotli body throws a bare InvalidOperationException that cannot be
+    // told apart from a misconfigured request, so it could not be mapped to a typed
+    // error the way a corrupt gzip body is in SendAsync. Browser-wasm rejects the
+    // setting (the browser decompresses by itself), hence the Supports check.
+    private static HttpClientHandler GzipHandler()
+    {
+        var own = new HttpClientHandler();
+        if (own.SupportsAutomaticDecompression)
+        {
+            own.AutomaticDecompression = DecompressionMethods.GZip;
+        }
+        return own;
     }
 
     public Quota? Quota => _quota;
@@ -107,6 +124,12 @@ internal sealed class HttpTransport : IDisposable
                     continue;
                 }
                 throw new BitculatorConnectionException($"Network error requesting {path}: {e.Message}");
+            }
+            catch (InvalidDataException e)
+            {
+                // Thrown while the body is buffered and gunzipped: a corrupt compressed
+                // body is a decode failure, never a success and never an untyped crash.
+                throw new BitculatorException($"Failed to decode response from {path}: {e.Message}", e);
             }
 
             using (response)

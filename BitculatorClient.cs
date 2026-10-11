@@ -90,6 +90,8 @@ public sealed class BitculatorClientOptions
     /// <summary>
     /// Optional <see cref="System.Net.Http.HttpMessageHandler"/> for proxies, testing,
     /// or tracing. The handler is not disposed with the client; its owner disposes it.
+    /// Its decompression settings are used as-is: set <c>AutomaticDecompression</c> on it
+    /// to keep responses compressed on the wire, as the SDK's default handler does.
     /// </summary>
     public System.Net.Http.HttpMessageHandler? Handler { get; set; }
 }
